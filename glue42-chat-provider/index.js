@@ -72,7 +72,7 @@ Glue({
             branchToPushMessageTo.push({
               room: args.room,
               callerId: caller.instance,
-              messageAuthor: args.messageAuthor,
+              messageAuthor: caller.user + caller.instance,
               publicationTime: args.publicationTime,
               messageText: args.messageText,
             })
