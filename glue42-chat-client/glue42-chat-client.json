@@ -1,0 +1,13 @@
+{
+  "name": "Glue42ChatClient",
+  "title": "Glue42 Chat Client",
+  "caption": "Glue42 Chat Client app",
+  "type": "window",
+  "hidden": false,
+  "details": {
+    "url": "http://localhost:3000",
+    "mode": "flat",
+    "width": 400,
+    "height": 400
+  }
+}

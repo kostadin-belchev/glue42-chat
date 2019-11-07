@@ -1,0 +1,14 @@
+{
+  "name": "Glue42ChatProvider",
+  "title": "Glue42 Chat Provider",
+  "caption": "Glue42 Chat Provider app for Glue42 Chat Client app",
+  "type": "window",
+  "hidden": true,
+  "autoStart": true,
+  "details": {
+    "url": "http://localhost:3004/index.html",
+    "mode": "flat",
+    "width": 400,
+    "height": 400
+  }
+}

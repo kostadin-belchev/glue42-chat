@@ -1,0 +1,14 @@
+{
+  "name": "glue42-chat-provider",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "./node_modules/.bin/http-server ./ -c-1 -p 3004",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "K.B.",
+  "license": "MIT",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  }
+}
