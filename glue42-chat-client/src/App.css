@@ -204,3 +204,7 @@ body {
 .link-button:focus {
   text-decoration: none;
 }
+
+input[disabled] {
+  cursor: not-allowed;
+}

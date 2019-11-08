@@ -14,8 +14,10 @@ export const SendMessageForm: React.FC<SendMessageFormProps> = ({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    sendMessage(message)
-    setMessage('')
+    if (message !== '') {
+      sendMessage(message)
+      setMessage('')
+    }
   }
 
   return (
@@ -24,7 +26,11 @@ export const SendMessageForm: React.FC<SendMessageFormProps> = ({
         disabled={disabled}
         onChange={handleChange}
         value={message}
-        placeholder="Type your message and hit ENTER"
+        placeholder={
+          disabled
+            ? 'Join a room first in order to be able to type a message'
+            : 'Type your message and hit ENTER'
+        }
         type="text"
       />
     </form>
