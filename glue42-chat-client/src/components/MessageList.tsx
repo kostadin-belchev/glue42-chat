@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react'
-import ReactDOM from 'react-dom'
+import React, { useLayoutEffect, useRef } from 'react'
 import Message from './Message'
 import { MessageListProps } from '../types/types'
 import moment from 'moment'
@@ -8,20 +7,22 @@ export const MessageList: React.FC<MessageListProps> = ({
   selectedRoomId,
   messages,
 }) => {
-  useEffect(() => {
-    
-  })
-  // componentWillUpdate() {
-  //     const node = ReactDOM.findDOMNode(this)
-  //     this.shouldScrollToBottom = node.scrollTop + node.clientHeight + 100 >= node.scrollHeight
-  // }
+  const messageListElement = useRef<HTMLInputElement>(null)
 
-  // componentDidUpdate() {
-  //     if (this.shouldScrollToBottom) {
-  //         const node = ReactDOM.findDOMNode(this)
-  //         node.scrollTop = node.scrollHeight
-  //     }
-  // }
+  useLayoutEffect(() => {
+    if (messageListElement && messageListElement.current) {
+      const shouldScrollToBottom =
+        messageListElement.current.scrollTop +
+          messageListElement.current.clientHeight +
+          100 >=
+        messageListElement.current.scrollHeight
+
+      if (shouldScrollToBottom) {
+        messageListElement.current.scrollTop =
+          messageListElement.current.scrollHeight
+      }
+    }
+  })
 
   if (!selectedRoomId) {
     return (
@@ -40,7 +41,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   }
 
   return (
-    <div className="message-list">
+    <div ref={messageListElement} className="message-list">
       {messages.map(message => (
         <Message
           key={message.id}

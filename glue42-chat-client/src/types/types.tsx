@@ -1,5 +1,3 @@
-import { Glue42Core } from '@glue42/core'
-
 export interface MessageProps {
   id: string
   author: string
@@ -16,14 +14,6 @@ export interface RoomListProps {
   rooms: RoomProps[]
   selectedRoomId: string
   onRoomTopicClick: (room: RoomProps) => void
-  // switchSelectedRoom: (roomId: string) => void
-  // updateMessageData: ({
-  //   streamData,
-  //   roomId,
-  // }: {
-  //   streamData: Glue42Core.Interop.StreamData
-  //   roomId: string
-  // }) => void
 }
 
 export interface MessageListProps {
@@ -36,7 +26,7 @@ export interface SendMessageFormProps {
   sendMessage: (text: string) => void
 }
 
-export interface streamDataDataObjectProps  {
+export interface streamDataDataObjectProps {
   callerId: string
   messageAuthor: string
   messageText: string

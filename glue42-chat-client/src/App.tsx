@@ -10,6 +10,8 @@ import { streamDataDataObjectProps, RoomProps } from './types/types'
 import moment from 'moment'
 var uniqid = require('uniqid')
 
+moment.locale('en-gb')
+
 declare global {
   interface Window {
     glue: Glue42.Glue
@@ -17,8 +19,6 @@ declare global {
 }
 
 const App: React.FC = () => {
-  // TODO see if we can remove the glue variable
-  let glue: Glue42.Glue | undefined
   const [selectedRoomId, setSelectedRoomId] = useState('')
   const [rooms, setRooms] = useState([
     {
@@ -27,13 +27,13 @@ const App: React.FC = () => {
         {
           id: 'unique id 1',
           author: 'Test Author',
-          publicationTime: '2 days ago',
+          publicationTime: '2019-11-06T10:45:18+02:00',
           text: 'text message example text',
         },
         {
           id: 'unique id 2',
           author: 'Test Author 2',
-          publicationTime: '1 days ago',
+          publicationTime: '2019-11-07T10:45:18+02:00',
           text: 'some random text',
         },
       ],
@@ -44,13 +44,13 @@ const App: React.FC = () => {
         {
           id: 'unique id 3',
           author: 'Finance Author',
-          publicationTime: '5 days ago',
+          publicationTime: '2019-11-03T10:45:18+02:00',
           text: 'finance text message',
         },
         {
           id: 'unique id 4',
           author: 'Finance Author 2',
-          publicationTime: '7 days ago',
+          publicationTime: '2019-11-02T10:45:18+02:00',
           text: 'finance text',
         },
       ],
@@ -58,20 +58,15 @@ const App: React.FC = () => {
   ])
 
   useEffect(() => {
-    Glue({ agm: true }).then((glueFromFactory: Glue42.Glue) => {
-      glue = glueFromFactory
-      window.glue = glueFromFactory
-    })
-  }, [glue])
+    Glue({ agm: true }).then((glue: Glue42.Glue) => (window.glue = glue))
+  }, [])
 
   const sendMessage = (text: string) => {
     if (window.glue && window.glue.agm) {
       window.glue.agm
         .invoke('Glue42.Chat.Send.Message', {
           messageText: text,
-          publicationTime:
-            // @ts-ignore
-            console.log(moment().format()) || moment().format(),
+          publicationTime: moment().format(),
           room: selectedRoomId,
         })
         .then(successResult => {
@@ -88,41 +83,7 @@ const App: React.FC = () => {
     }
   }
 
-  const updateMessageData = ({
-    streamData,
-    roomId,
-  }: {
-    streamData: Glue42Core.Interop.StreamData
-    roomId: string
-  }) => {
-    setRooms(prevRooms => {
-      const data = streamData.data as streamDataDataObjectProps
-      const id = uniqid()
-
-      const currRoomIndex = prevRooms.findIndex(room => room.topic === roomId)
-
-      const newMessagesForGivenRoom = addLast(
-        getIn(prevRooms, [currRoomIndex, 'messages']),
-        {
-          id,
-          author: data.messageAuthor,
-          publicationTime: data.publicationTime,
-          text: data.messageText,
-        }
-      )
-      const newRooms = replaceAt(prevRooms, currRoomIndex, {
-        topic: roomId,
-        messages: newMessagesForGivenRoom,
-      })
-
-      return newRooms
-    })
-  }
-
-  const currRoom = rooms.find(room => room.topic === selectedRoomId)
-
   const onRoomTopicClick = (room: RoomProps) => {
-    console.log('TCL: onClick of room with topic: ', room.topic)
     setSelectedRoomId(room.topic)
 
     if (window && window.glue && window.glue.agm) {
@@ -134,7 +95,30 @@ const App: React.FC = () => {
         .then(streamSubscription =>
           streamSubscription.onData(
             (streamData: Glue42Core.Interop.StreamData) =>
-              updateMessageData({ streamData, roomId: room.topic })
+              setRooms(prevRooms => {
+                const data = streamData.data as streamDataDataObjectProps
+                const id = uniqid()
+
+                const currRoomIndex = prevRooms.findIndex(
+                  prevRoom => prevRoom.topic === room.topic
+                )
+
+                const newMessagesForGivenRoom = addLast(
+                  getIn(prevRooms, [currRoomIndex, 'messages']),
+                  {
+                    id,
+                    author: data.messageAuthor,
+                    publicationTime: data.publicationTime,
+                    text: data.messageText,
+                  }
+                )
+                const newRooms = replaceAt(prevRooms, currRoomIndex, {
+                  topic: room.topic,
+                  messages: newMessagesForGivenRoom,
+                })
+
+                return newRooms
+              })
           )
         )
         .catch(error => {
@@ -143,6 +127,8 @@ const App: React.FC = () => {
         })
     }
   }
+
+  const currRoom = rooms.find(room => room.topic === selectedRoomId)
 
   return (
     <div className="app">
