@@ -20,59 +20,72 @@ declare global {
 
 const App: React.FC = () => {
   const [selectedRoomId, setSelectedRoomId] = useState('')
-  const [rooms, setRooms] = useState([
-    {
-      topic: 'test room topic',
-      messages: [
-        {
-          id: 'unique id 1',
-          author: 'Test Author',
-          publicationTime: '2019-11-06T10:45:18+02:00',
-          text: 'text message example text',
-        },
-        {
-          id: 'unique id 2',
-          author: 'Test Author 2',
-          publicationTime: '2019-11-07T10:45:18+02:00',
-          text: 'some random text',
-        },
-      ],
-    },
-    {
-      topic: 'finance',
-      messages: [
-        {
-          id: 'unique id 3',
-          author: 'Finance Author',
-          publicationTime: '2019-11-03T10:45:18+02:00',
-          text: 'finance text message',
-        },
-        {
-          id: 'unique id 4',
-          author: 'Finance Author 2',
-          publicationTime: '2019-11-02T10:45:18+02:00',
-          text: 'finance text',
-        },
-      ],
-    },
-  ])
+  const [rooms, setRooms] = useState<RoomProps[]>([])
 
   useEffect(() => {
-    Glue({ agm: true }).then((glue: Glue42.Glue) => (window.glue = glue))
+    Glue({ agm: true }).then((glue: Glue42.Glue) => {
+      window.glue = glue
+      const historyByTopicId: { [index: string]: RoomProps } = {
+        'testRoomTopic': {
+          topic: 'testRoomTopic',
+          messages: [
+            {
+              id: 'unique id 1',
+              author: 'Test Author',
+              publicationTime: '2019-11-06T10:45:18+02:00',
+              text: 'text message example text',
+            },
+            {
+              id: 'unique id 2',
+              author: 'Test Author 2',
+              publicationTime: '2019-11-07T10:45:18+02:00',
+              text: 'some random text',
+            },
+          ],
+        },
+        finance: {
+          topic: 'finance',
+          messages: [
+            {
+              id: 'unique id 3',
+              author: 'Finance Author',
+              publicationTime: '2019-11-03T10:45:18+02:00',
+              text: 'finance text message',
+            },
+            {
+              id: 'unique id 4',
+              author: 'Finance Author 2',
+              publicationTime: '2019-11-02T10:45:18+02:00',
+              text: 'finance text',
+            },
+          ],
+        },
+      }
+
+      setRooms(
+        Object.keys(historyByTopicId).map(topic => ({
+          ...historyByTopicId[topic],
+        }))
+      )
+    })
   }, [])
 
   const sendMessage = (text: string) => {
     if (window.glue && window.glue.agm) {
       window.glue.agm
         .invoke('Glue42.Chat.Send.Message', {
+          id: uniqid(),
           messageText: text,
           publicationTime: moment().format(),
           room: selectedRoomId,
         })
         .then(successResult => {
-          console.log(
-            'TCL: sendMessage -> successResult.returned',
-            successResult.returned
+          const historyByTopicId = successResult.returned.historyByTopicId
+          console.log('TCL: sendMessage -> historyByTopicId', historyByTopicId)
+          setRooms(
+            Object.keys(historyByTopicId).map(topic => ({
+              ...historyByTopicId[topic],
+            }))
           )
         })
         .catch(err => {
