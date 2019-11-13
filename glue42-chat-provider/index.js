@@ -1,5 +1,5 @@
 var historyByTopicId = {
-  'testRoomTopic': {
+  testRoomTopic: {
     topic: 'testRoomTopic',
     messages: [
       {
@@ -95,30 +95,22 @@ Glue({
     glue.agm
       .createStream(streamDefinition, streamOptions)
       .then(stream => {
-        // TODO get whatever was pushed below and then return the history in return format from above
-        console.log('TCL: stream', stream)
-
         const methodDefinition = {
           name: 'Glue42.Chat.Send.Message',
-          accepts: 'String messageText, String publicationTime',
-          // returns: '', // optional
+          accepts:
+            'String id, String messageText, String publicationTime, String room',
+          returns:
+            'Composite: { String topic, Composite: {String id, String author, string publicationTime, String text }[] messages }[] historyByTopicId',
         }
 
         // register interop method for chat messages to arrive and then push to stream registered above
         glue.agm.register(methodDefinition, (args, caller) => {
-          // required - handler function
-          console.log('TCL: args', args)
-          console.log('TCL: caller', caller)
-          // TODO pass caller.instance, args.messageAuthor, args.publicationTime
-          // TODO args.messageText, args.room to the steam
-          console.log('TCL: stream.branches()', stream.branches())
-          console.log('TCL: args.room', args.room)
+          // handler function
           const branchToPushMessageTo = stream
             .branches()
             .find(({ key }) => key === args.room)
 
           if (branchToPushMessageTo) {
-            console.log('TCL: branchToPushMessageTo', branchToPushMessageTo)
             const messageAuthor = caller.user + caller.instance
             const message = {
               author: args.author,
@@ -128,7 +120,6 @@ Glue({
               publicationTime: args.publicationTime,
               messageText: args.messageText,
             }
-
             const messageForDb = {
               id: args.id,
               author: messageAuthor,
@@ -136,15 +127,13 @@ Glue({
               text: args.messageText,
               room: args.room,
             }
-            console.log('TCL: message', message)
-            addMessageToHistory(messageForDb)
 
-            console.log('TCL: historyByTopicId', historyByTopicId)
+            addMessageToHistory(messageForDb)
 
             branchToPushMessageTo.push(message)
           }
 
-          return { historyByTopicId } // optional
+          return { historyByTopicId }
         })
       })
       .catch(console.error)
