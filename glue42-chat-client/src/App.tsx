@@ -20,13 +20,14 @@ declare global {
 
 const App: React.FC = () => {
   const [selectedRoomId, setSelectedRoomId] = useState('')
+  const [subscriptions, setSubscriptions] = useState<string[]>([])
   const [rooms, setRooms] = useState<RoomProps[]>([])
 
   useEffect(() => {
     Glue({ agm: true }).then((glue: Glue42.Glue) => {
       window.glue = glue
       const historyByTopicId: { [index: string]: RoomProps } = {
-        'testRoomTopic': {
+        testRoomTopic: {
           topic: 'testRoomTopic',
           messages: [
             {
@@ -99,7 +100,10 @@ const App: React.FC = () => {
   const onRoomTopicClick = (room: RoomProps) => {
     setSelectedRoomId(room.topic)
 
-    if (window && window.glue && window.glue.agm) {
+    setSubscriptions(prevSubscriptions => prevSubscriptions.concat(room.topic))
+    const isFirstLoadOfTopic = !subscriptions.includes(room.topic)
+
+    if (window && window.glue && window.glue.agm && isFirstLoadOfTopic) {
       window.glue.agm
         .subscribe('Glue42.Chat', {
           arguments: { room: room.topic, username: 'Koceto' },
