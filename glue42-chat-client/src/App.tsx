@@ -128,6 +128,31 @@ const App: React.FC = () => {
           // subscription rejected or failed
         })
     }
+
+    // get history from provider app
+    if (window && window.glue && window.glue.agm) {
+      window.glue.agm
+        .invoke('Glue42.Chat.Send.Message', {
+          id: '',
+          messageText: 'never shown message',
+          publicationTime: moment().format(),
+          room: '',
+        })
+        .then(successResult => {
+          const historyByTopicId = successResult.returned.historyByTopicId
+
+          setRooms(
+            Object.keys(historyByTopicId).map(topic => ({
+              ...historyByTopicId[topic],
+            }))
+          )
+        })
+        .catch(err => {
+          console.error(
+            `Failed to execute Glue42.Chat.Send.Message ${err.message}`
+          )
+        })
+    }
   }
 
   const createRoom = (name: string) => {
