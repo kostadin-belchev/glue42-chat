@@ -10,6 +10,10 @@ export interface RoomProps {
   messages: MessageProps[]
 }
 
+export interface NewRoomFormProps {
+  createRoom: (room: string) => void
+}
+
 export interface RoomListProps {
   rooms: RoomProps[]
   selectedRoomId: string
@@ -27,9 +31,8 @@ export interface SendMessageFormProps {
 }
 
 export interface streamDataDataObjectProps {
-  callerId: string
-  messageAuthor: string
-  messageText: string
+  id: string
+  author: string
   publicationTime: string
-  room: string
+  text: string
 }

@@ -9,6 +9,7 @@
   "author": "K.B.",
   "license": "MIT",
   "dependencies": {
-    "http-server": "^0.11.1"
+    "http-server": "^0.11.1",
+    "uuid": "^3.3.3"
   }
 }

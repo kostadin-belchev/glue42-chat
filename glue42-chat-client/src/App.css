@@ -31,7 +31,7 @@ body {
     'r r m m m m'
     'r r m m m m'
     'r r m m m m'
-    'r r s s s s';
+    'n n s s s s';
 }
 
 .new-room-form {
@@ -138,7 +138,7 @@ body {
 .message .message-text {
   background: var(--main-color);
   color: var(--secondary-color);
-  display: inline;
+  display: inline-block;
   padding: 4px 8px;
   border-radius: 8px;
 }
@@ -207,4 +207,24 @@ body {
 
 input[disabled] {
   cursor: not-allowed;
+}
+
+#create-room-btn {
+  background-color: rgb(69, 179, 73); /* Green */
+  border: none;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+#create-room-btn:hover {
+  background-color: rgb(50, 126, 53); /* Green */
 }

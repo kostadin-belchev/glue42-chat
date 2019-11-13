@@ -4,15 +4,10 @@ var historyByTopicId = {
     messages: [
       {
         id: 'unique id 1',
-        author: 'Test Author',
+        author: 'Auto Generated',
         publicationTime: '2019-11-06T10:45:18+02:00',
-        text: 'text message example text',
-      },
-      {
-        id: 'unique id 2',
-        author: 'Test Author 2',
-        publicationTime: '2019-11-07T10:45:18+02:00',
-        text: 'some random text',
+        text: `Subscribed to testRoomTopic room! 
+        When new messages are sent to the group you will now see them listed below.`,
       },
     ],
   },
@@ -48,15 +43,13 @@ const addMessageToHistory = message => {
   }
 }
 
-Glue({
-  agm: true,
-})
+Glue({ agm: true })
   .then(glue => {
     window.glue = glue
 
     const streamDefinition = {
       name: 'Glue42.Chat',
-      accepts: 'String room, String username',
+      accepts: 'String roomTopic',
       returns:
         'String room, Composite:{String messageAuthor, String publicationTime, String messageText}[]',
       description: 'The default Glue42 Chat Stream',
@@ -68,7 +61,9 @@ Glue({
         'TCL:subscriptionRequestHandler -> subscriptionRequest',
         subscriptionRequest
       )
-      subscriptionRequest.acceptOnBranch(subscriptionRequest.arguments.room)
+      subscriptionRequest.acceptOnBranch(
+        subscriptionRequest.arguments.roomTopic
+      )
     }
 
     const subscriptionAddedHandler = streamSubscription => {
@@ -97,8 +92,7 @@ Glue({
       .then(stream => {
         const methodDefinition = {
           name: 'Glue42.Chat.Send.Message',
-          accepts:
-            'String id, String messageText, String publicationTime, String room',
+          accepts: 'String messageText, String publicationTime, String room',
           returns:
             'Composite: { String topic, Composite: {String id, String author, string publicationTime, String text }[] messages }[] historyByTopicId',
         }
@@ -111,24 +105,16 @@ Glue({
             .find(({ key }) => key === args.room)
 
           if (branchToPushMessageTo) {
-            const messageAuthor = caller.user + caller.instance
+            const author = caller.user + caller.instance
+            const id = uuidv4()
             const message = {
-              author: args.author,
-              room: args.room,
-              callerId: caller.instance,
-              messageAuthor,
-              publicationTime: args.publicationTime,
-              messageText: args.messageText,
-            }
-            const messageForDb = {
-              id: args.id,
-              author: messageAuthor,
+              id,
+              author,
               publicationTime: args.publicationTime,
               text: args.messageText,
-              room: args.room,
             }
 
-            addMessageToHistory(messageForDb)
+            addMessageToHistory({ ...message, room: args.room })
 
             branchToPushMessageTo.push(message)
           }

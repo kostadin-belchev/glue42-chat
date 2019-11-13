@@ -13,8 +13,7 @@
     "react-dom": "^16.11.0",
     "react-scripts": "3.2.0",
     "timm": "^1.6.2",
-    "typescript": "3.7.2",
-    "uniqid": "^5.1.0"
+    "typescript": "3.7.2"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -6,9 +6,9 @@ import './App.css'
 import { RoomList } from './components/RoomList'
 import { MessageList } from './components/MessageList'
 import SendMessageForm from './components/SendMessageForm'
+import { NewRoomForm } from './components/NewRoomForm'
 import { streamDataDataObjectProps, RoomProps } from './types/types'
 import moment from 'moment'
-var uniqid = require('uniqid')
 
 moment.locale('en-gb')
 
@@ -26,48 +26,30 @@ const App: React.FC = () => {
   useEffect(() => {
     Glue({ agm: true }).then((glue: Glue42.Glue) => {
       window.glue = glue
-      const historyByTopicId: { [index: string]: RoomProps } = {
-        testRoomTopic: {
-          topic: 'testRoomTopic',
-          messages: [
-            {
-              id: 'unique id 1',
-              author: 'Test Author',
-              publicationTime: '2019-11-06T10:45:18+02:00',
-              text: 'text message example text',
-            },
-            {
-              id: 'unique id 2',
-              author: 'Test Author 2',
-              publicationTime: '2019-11-07T10:45:18+02:00',
-              text: 'some random text',
-            },
-          ],
-        },
-        finance: {
-          topic: 'finance',
-          messages: [
-            {
-              id: 'unique id 3',
-              author: 'Finance Author',
-              publicationTime: '2019-11-03T10:45:18+02:00',
-              text: 'finance text message',
-            },
-            {
-              id: 'unique id 4',
-              author: 'Finance Author 2',
-              publicationTime: '2019-11-02T10:45:18+02:00',
-              text: 'finance text',
-            },
-          ],
-        },
-      }
+      // get history from provider app
+      if (glue && glue.agm) {
+        glue.agm
+          .invoke('Glue42.Chat.Send.Message', {
+            id: '',
+            messageText: 'never shown message',
+            publicationTime: moment().format(),
+            room: '',
+          })
+          .then(successResult => {
+            const historyByTopicId = successResult.returned.historyByTopicId
 
-      setRooms(
-        Object.keys(historyByTopicId).map(topic => ({
-          ...historyByTopicId[topic],
-        }))
-      )
+            setRooms(
+              Object.keys(historyByTopicId).map(topic => ({
+                ...historyByTopicId[topic],
+              }))
+            )
+          })
+          .catch(err => {
+            console.error(
+              `Failed to execute Glue42.Chat.Send.Message ${err.message}`
+            )
+          })
+      }
     })
   }, [])
 
@@ -75,14 +57,13 @@ const App: React.FC = () => {
     if (window.glue && window.glue.agm) {
       window.glue.agm
         .invoke('Glue42.Chat.Send.Message', {
-          id: uniqid(),
           messageText: text,
           publicationTime: moment().format(),
           room: selectedRoomId,
         })
         .then(successResult => {
           const historyByTopicId = successResult.returned.historyByTopicId
-          console.log('TCL: sendMessage -> historyByTopicId', historyByTopicId)
+
           setRooms(
             Object.keys(historyByTopicId).map(topic => ({
               ...historyByTopicId[topic],
@@ -106,15 +87,19 @@ const App: React.FC = () => {
     if (window && window.glue && window.glue.agm && isFirstLoadOfTopic) {
       window.glue.agm
         .subscribe('Glue42.Chat', {
-          arguments: { room: room.topic, username: 'Koceto' },
+          arguments: { roomTopic: room.topic },
           target: 'all',
         })
         .then(streamSubscription =>
           streamSubscription.onData(
             (streamData: Glue42Core.Interop.StreamData) =>
               setRooms(prevRooms => {
-                const data = streamData.data as streamDataDataObjectProps
-                const id = uniqid()
+                const {
+                  id,
+                  author,
+                  publicationTime,
+                  text,
+                } = streamData.data as streamDataDataObjectProps
 
                 const currRoomIndex = prevRooms.findIndex(
                   prevRoom => prevRoom.topic === room.topic
@@ -124,9 +109,9 @@ const App: React.FC = () => {
                   getIn(prevRooms, [currRoomIndex, 'messages']),
                   {
                     id,
-                    author: data.messageAuthor,
-                    publicationTime: data.publicationTime,
-                    text: data.messageText,
+                    author,
+                    publicationTime,
+                    text,
                   }
                 )
                 const newRooms = replaceAt(prevRooms, currRoomIndex, {
@@ -145,6 +130,16 @@ const App: React.FC = () => {
     }
   }
 
+  const createRoom = (name: string) => {
+    console.log('TCL: createRoom -> name', name)
+    // TODO
+    // this.currentUser.createRoom({
+    //     name
+    // })
+    // .then(room => this.subscribeToRoom(room.id))
+    // .catch(err => console.log('error with createRoom: ', err))
+  }
+
   const currRoom = rooms.find(room => room.topic === selectedRoomId)
 
   return (
@@ -159,7 +154,7 @@ const App: React.FC = () => {
         messages={currRoom && currRoom.messages}
       />
       <SendMessageForm disabled={!selectedRoomId} sendMessage={sendMessage} />
-      {/* <NewRoomForm createRoom={this.createRoom} /> */}
+      <NewRoomForm createRoom={createRoom} />
     </div>
   )
 }
