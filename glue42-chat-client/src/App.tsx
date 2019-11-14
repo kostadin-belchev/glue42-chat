@@ -20,7 +20,7 @@ declare global {
 
 const App: React.FC = () => {
   const [selectedRoomId, setSelectedRoomId] = useState('')
-  const [subscriptions, setSubscriptions] = useState<string[]>([])
+  const [subscriptions, setSubscriptions] = useState(new Set())
   const [rooms, setRooms] = useState<RoomProps[]>([])
 
   useEffect(() => {
@@ -81,8 +81,9 @@ const App: React.FC = () => {
   const onRoomTopicClick = (room: RoomProps) => {
     setSelectedRoomId(room.topic)
 
-    setSubscriptions(prevSubscriptions => prevSubscriptions.concat(room.topic))
-    const isFirstLoadOfTopic = !subscriptions.includes(room.topic)
+    const isFirstLoadOfTopic = !subscriptions.has(room.topic)
+
+    setSubscriptions(subscriptions.add(room.topic))
 
     if (window && window.glue && window.glue.agm && isFirstLoadOfTopic) {
       window.glue.agm
@@ -90,7 +91,8 @@ const App: React.FC = () => {
           arguments: { roomTopic: room.topic },
           target: 'all',
         })
-        .then(streamSubscription =>
+        .then(streamSubscription => {
+
           streamSubscription.onData(
             (streamData: Glue42Core.Interop.StreamData) =>
               setRooms(prevRooms => {
@@ -122,15 +124,15 @@ const App: React.FC = () => {
                 return newRooms
               })
           )
-        )
+        })
         .catch(error => {
           console.error('TCL: error', error)
           // subscription rejected or failed
         })
     }
 
-    // get history from provider app
-    if (window && window.glue && window.glue.agm) {
+    // get history from provider app if this is not first load
+    if (window && window.glue && window.glue.agm && !isFirstLoadOfTopic) {
       window.glue.agm
         .invoke('Glue42.Chat.Send.Message', {
           id: '',
@@ -156,8 +158,7 @@ const App: React.FC = () => {
   }
 
   const createRoom = (name: string) => {
-    console.log('TCL: createRoom -> name', name)
-    // TODO
+    setRooms(prevRooms => addLast(prevRooms, { topic: name, messages: [] }))
     // this.currentUser.createRoom({
     //     name
     // })

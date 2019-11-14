@@ -26,7 +26,7 @@ export const NewRoomForm: React.FC<NewRoomFormProps> = ({ createRoom }) => {
           required
         />
         <button id="create-room-btn" type="submit">
-          Create Room
+          +
         </button>
       </form>
     </div>
