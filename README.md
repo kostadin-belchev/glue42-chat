@@ -7,6 +7,7 @@ This repository contains both apps needed for running a chat room solution built
 Runs in the background and provides all necessary code for Glue42 Chat Client app to work.
 
 ## Glue42 Chat Client app
+
 The chat client app the user opens to start chatting.
 
 ### Prerequisites
@@ -18,13 +19,16 @@ The chat client app the user opens to start chatting.
 ### Setup
 
 - clone the repository
+- run the copy-app-configs-and-install-dependencies.bat file by double clicking it in the file explorer or follow the next 2 steps to copy configs manually
 - copy the `.json` config files from the application folders (look at the configuration locations [below](#configurations-locations))
-- put them in the GD application configuration folder (`%LocalAppData%\Tick42\GlueDesktop\config\apps`)
+- paste them in the GD application configuration folder (`%LocalAppData%\Tick42\GlueDesktop\config\apps`)
 - open a terminal in the home directory of this repo
-- in the terminal write `cd glue42-chat-client` then `npm install` to install all dependencies for Glue42 Chat Client app
+- in the terminal write `cd glue42-chat-client`
+- (not needed if you ran the bat file) `npm install` to install all dependencies for Glue42 Chat Client app
 - write `npm start` to host the Glue42 Chat Client app.
 - open a new terminal in the home directory of this repo
-- write `cd glue42-chat-provider` and then `npm install` to install all dependencies for Glue42 Chat Provider app
+- write `cd glue42-chat-provider`
+- (not needed if you ran the bat file) `npm install` to install all dependencies for Glue42 Chat Provider app
 - write `npm run start` to host the Glue42 Chat Provider app.
 
 Now you should be able to start Glue42 Chat Client app from the GD app manager, Glue42 Chat Provider app is autostart, so no need to run it manually, it will start when Glue desktop app is started.
